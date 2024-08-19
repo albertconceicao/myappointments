@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
+import { ICustomerProps } from '../../entities/ICustomer';
 import { useErrors } from '../../hooks/useErrors';
-import { IFormDataProps } from '../../pages/Login';
 import formatPhone from '../../utils/formatPhone';
 import isEmailValid from '../../utils/isEmailValid';
 import Button from '../Button';
@@ -10,12 +10,17 @@ import Input from '../Input';
 
 import { ButtonContainer, Form } from './styles';
 
-interface ILoginFormProps {
+interface ICustomerFormProps {
   buttonLabel: string;
-  onSubmit: (formData: IFormDataProps) => Promise<void>;
+  onSubmit: (formData: ICustomerProps) => Promise<void>;
+  signIn: boolean;
 }
 
-export function LoginForm({ buttonLabel, onSubmit }: ILoginFormProps) {
+export function CustomerForm({
+  buttonLabel,
+  onSubmit,
+  signIn,
+}: ICustomerFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -86,16 +91,18 @@ export function LoginForm({ buttonLabel, onSubmit }: ILoginFormProps) {
           disabled={isSubmitting}
         />
       </FormGroup>
-      <FormGroup>
-        <Input
-          placeholder="Telefone"
-          type="tel"
-          value={phone}
-          onChange={handlePhoneChange}
-          maxLength={15}
-          disabled={isSubmitting}
-        />
-      </FormGroup>
+      {!signIn && (
+        <FormGroup>
+          <Input
+            placeholder="Telefone"
+            type="tel"
+            value={phone}
+            onChange={handlePhoneChange}
+            maxLength={15}
+            disabled={isSubmitting}
+          />
+        </FormGroup>
+      )}
       <ButtonContainer>
         <Button type="submit" disabled={!isFormValid} isLoading={isSubmitting}>
           {buttonLabel}
