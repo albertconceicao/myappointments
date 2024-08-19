@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { toast } from 'react-toastify';
+
 import { APIError } from '../../errors/APIError';
 import delay from '../../utils/delay';
 
@@ -50,18 +52,20 @@ class HttpClient {
       headers,
     });
 
-    let respondeBody = null;
+    let responseBody = null;
 
     const contentType = response.headers.get('Content-Type');
     if (contentType?.includes('application/json')) {
-      respondeBody = await response.json();
+      responseBody = await response.json();
     }
 
     if (response.ok) {
-      return respondeBody;
+      toast.success('Conta criada com sucesso');
+      return responseBody;
     }
 
-    throw new APIError(response, respondeBody);
+    toast.warn(responseBody.error);
+    throw new APIError(response, responseBody);
   }
 }
 

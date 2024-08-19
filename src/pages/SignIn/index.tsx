@@ -9,11 +9,20 @@ export function SignIn() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
+        password: formData.password,
       };
 
-      const response = await CustomersService.createCustomer(customer);
+      const token = localStorage.getItem('token') || null;
 
-      console.log(response);
+      if (!token || token === null) {
+        const { data } = await CustomersService.customerLogin(customer);
+        localStorage.setItem('token', data.token);
+      }
+      const bearerToken: string = `Bearer ${token}`;
+      const customers = await CustomersService.listCustomers('asc', {
+        Authorization: bearerToken,
+      });
+      console.log({ customers });
     } catch (error) {
       console.log(error);
     } finally {

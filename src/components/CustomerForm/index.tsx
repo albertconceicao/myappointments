@@ -24,12 +24,14 @@ export function CustomerForm({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { errors, setError, removeError, getErrorMessageByFieldName } =
     useErrors();
 
-  const isFormValid = name && errors.length === 0;
+  // const isSignUpFormValid = name && errors.length === 0;
+  const isSignInFormValid = email && errors.length === 0;
   function handleNameChange(event: React.ChangeEvent<HTMLInputElement>) {
     setName(event.target.value);
 
@@ -53,6 +55,22 @@ export function CustomerForm({
   function handlePhoneChange(event: React.ChangeEvent<HTMLInputElement>) {
     setPhone(formatPhone(event.target.value));
   }
+
+  function handlePasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setPassword(event.target.value);
+    // const regex =
+    //   // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&,#])[A-Za-z\d@$!%*?&,#]{8,}$/;
+
+    if (!password) {
+      setError({
+        field: 'password',
+        message:
+          'A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
+      });
+    } else {
+      removeError('password');
+    }
+  }
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -63,6 +81,7 @@ export function CustomerForm({
         name,
         email,
         phone: phone.replace(/\D/g, ''),
+        password,
       });
     }, 2000);
 
@@ -72,14 +91,16 @@ export function CustomerForm({
   return (
     <Form onSubmit={handleSubmit} noValidate>
       <FormGroup error={getErrorMessageByFieldName('name')}>
-        <Input
-          placeholder="Nome"
-          type="text"
-          value={name}
-          onChange={handleNameChange}
-          error={!!getErrorMessageByFieldName('name')}
-          disabled={isSubmitting}
-        />
+        {!signIn && (
+          <Input
+            placeholder="Nome"
+            type="text"
+            value={name}
+            onChange={handleNameChange}
+            error={!!getErrorMessageByFieldName('name')}
+            disabled={isSubmitting}
+          />
+        )}
       </FormGroup>
       <FormGroup error={getErrorMessageByFieldName('email')}>
         <Input
@@ -88,6 +109,16 @@ export function CustomerForm({
           value={email}
           onChange={handleEmailChange}
           error={!!getErrorMessageByFieldName('email')}
+          disabled={isSubmitting}
+        />
+      </FormGroup>
+      <FormGroup error={getErrorMessageByFieldName('password')}>
+        <Input
+          placeholder="Senha"
+          type="password"
+          value={password}
+          onChange={handlePasswordChange}
+          error={!!getErrorMessageByFieldName('password')}
           disabled={isSubmitting}
         />
       </FormGroup>
@@ -104,7 +135,11 @@ export function CustomerForm({
         </FormGroup>
       )}
       <ButtonContainer>
-        <Button type="submit" disabled={!isFormValid} isLoading={isSubmitting}>
+        <Button
+          type="submit"
+          disabled={!isSignInFormValid}
+          isLoading={isSubmitting}
+        >
           {buttonLabel}
         </Button>
       </ButtonContainer>

@@ -9,6 +9,7 @@ export function SignUp() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
+        password: formData.password,
       };
       const response = await CustomersService.createCustomer(customer);
 

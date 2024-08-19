@@ -1,4 +1,4 @@
-import { IFormDataProps } from '../pages/SignUp';
+import { ICustomerLoginProps, ICustomerProps } from '../entities/ICustomer';
 
 import HttpClient from './utils/httpClient';
 
@@ -9,12 +9,18 @@ class CustomersService {
     this.HttpClient = new HttpClient('http://localhost:3000');
   }
 
-  async listCustomers(orderBy = 'asc') {
-    return this.HttpClient.get(`/customers/?orderBy=${orderBy}`);
+  async listCustomers(orderBy = 'asc', headers: Record<string, string>) {
+    return this.HttpClient.get(`/customers/?orderBy=${orderBy}`, {
+      headers,
+    });
   }
 
-  async createCustomer(customer: IFormDataProps) {
+  async createCustomer(customer: ICustomerProps) {
     return this.HttpClient.post('/customers', { body: customer });
+  }
+
+  async customerLogin(customer: ICustomerLoginProps) {
+    return this.HttpClient.post('/login', { body: customer });
   }
 }
 
