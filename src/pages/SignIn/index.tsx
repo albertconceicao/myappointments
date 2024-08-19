@@ -1,9 +1,9 @@
 import { CustomerForm } from '../../components/CustomerForm';
-import { IUserProps } from '../../entities/ICustomer';
+import { ICustomerProps } from '../../entities/ICustomer';
 import CustomersService from '../../services/CustomersService';
 
 export function SignIn() {
-  async function handleSubmit(formData: IUserProps) {
+  async function handleSubmit(formData: ICustomerProps) {
     try {
       const customer = {
         name: formData.name,
