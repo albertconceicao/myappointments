@@ -2,6 +2,8 @@ import { CustomerForm } from '../../components/CustomerForm';
 import { ICustomerProps } from '../../entities/ICustomer';
 import CustomersService from '../../services/CustomersService';
 
+import { Container } from './styles';
+
 export function SignIn() {
   async function handleSubmit(formData: ICustomerProps) {
     try {
@@ -30,13 +32,13 @@ export function SignIn() {
     }
   }
   return (
-    <div>
+    <Container>
       <h1>Entrar na conta</h1>
       <CustomerForm
         onSubmit={handleSubmit}
         buttonLabel="Entrar na conta"
         signIn
       />
-    </div>
+    </Container>
   );
 }

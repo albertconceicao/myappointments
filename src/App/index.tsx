@@ -1,11 +1,16 @@
+import { BrowserRouter } from 'react-router-dom';
 import { Bounce, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ThemeProvider } from 'styled-components';
 
-import GlobalStyles from './assets/styles/global';
-import defaultTheme from './assets/styles/themes/default';
-import { useRenderCounter } from './hooks/useRenderCounter';
-import { SignIn } from './pages/SignIn';
+import GlobalStyles from '../assets/styles/global';
+import defaultTheme from '../assets/styles/themes/default';
+import { Header } from '../components/Header';
+import { SideBar } from '../components/SideBar';
+import { useRenderCounter } from '../hooks/useRenderCounter';
+import { AppRoutes } from '../routes';
+
+import { NavigationContainer } from './styles';
 
 export function App() {
   useRenderCounter('App');
@@ -13,8 +18,6 @@ export function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <GlobalStyles theme={defaultTheme} />
-      {/* <SignUp /> */}
-      <SignIn />
       <ToastContainer
         position="bottom-center"
         autoClose={5000}
@@ -27,6 +30,13 @@ export function App() {
         pauseOnHover
         transition={Bounce}
       />
+      <BrowserRouter>
+        <Header />
+        <NavigationContainer>
+          <SideBar />
+          <AppRoutes />
+        </NavigationContainer>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
