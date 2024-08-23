@@ -7,14 +7,11 @@ import GlobalStyles from '../assets/styles/global';
 import defaultTheme from '../assets/styles/themes/default';
 import { Header } from '../components/Header';
 import { SideBar } from '../components/SideBar';
-import { useRenderCounter } from '../hooks/useRenderCounter';
 import { AppRoutes } from '../routes';
 
 import { NavigationContainer } from './styles';
 
 export function App() {
-  useRenderCounter('App');
-
   return (
     <ThemeProvider theme={defaultTheme}>
       <GlobalStyles theme={defaultTheme} />
