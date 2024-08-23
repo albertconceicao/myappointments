@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
+import { ICustomerProps } from '../../entities/ICustomer';
 import { useErrors } from '../../hooks/useErrors';
-import { IFormDataProps } from '../../pages/Login';
 import formatPhone from '../../utils/formatPhone';
 import isEmailValid from '../../utils/isEmailValid';
 import Button from '../Button';
@@ -10,21 +10,28 @@ import Input from '../Input';
 
 import { ButtonContainer, Form } from './styles';
 
-interface ILoginFormProps {
+interface ICustomerFormProps {
   buttonLabel: string;
-  onSubmit: (formData: IFormDataProps) => Promise<void>;
+  onSubmit: (formData: ICustomerProps) => Promise<void>;
+  signIn: boolean;
 }
 
-export function LoginForm({ buttonLabel, onSubmit }: ILoginFormProps) {
+export function CustomerForm({
+  buttonLabel,
+  onSubmit,
+  signIn,
+}: ICustomerFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { errors, setError, removeError, getErrorMessageByFieldName } =
     useErrors();
 
-  const isFormValid = name && errors.length === 0;
+  // const isSignUpFormValid = name && errors.length === 0;
+  const isSignInFormValid = email && errors.length === 0;
   function handleNameChange(event: React.ChangeEvent<HTMLInputElement>) {
     setName(event.target.value);
 
@@ -48,6 +55,22 @@ export function LoginForm({ buttonLabel, onSubmit }: ILoginFormProps) {
   function handlePhoneChange(event: React.ChangeEvent<HTMLInputElement>) {
     setPhone(formatPhone(event.target.value));
   }
+
+  function handlePasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setPassword(event.target.value);
+    // const regex =
+    //   // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&,#])[A-Za-z\d@$!%*?&,#]{8,}$/;
+
+    if (!password) {
+      setError({
+        field: 'password',
+        message:
+          'A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
+      });
+    } else {
+      removeError('password');
+    }
+  }
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -58,6 +81,7 @@ export function LoginForm({ buttonLabel, onSubmit }: ILoginFormProps) {
         name,
         email,
         phone: phone.replace(/\D/g, ''),
+        password,
       });
     }, 2000);
 
@@ -67,14 +91,16 @@ export function LoginForm({ buttonLabel, onSubmit }: ILoginFormProps) {
   return (
     <Form onSubmit={handleSubmit} noValidate>
       <FormGroup error={getErrorMessageByFieldName('name')}>
-        <Input
-          placeholder="Nome"
-          type="text"
-          value={name}
-          onChange={handleNameChange}
-          error={!!getErrorMessageByFieldName('name')}
-          disabled={isSubmitting}
-        />
+        {!signIn && (
+          <Input
+            placeholder="Nome"
+            type="text"
+            value={name}
+            onChange={handleNameChange}
+            error={!!getErrorMessageByFieldName('name')}
+            disabled={isSubmitting}
+          />
+        )}
       </FormGroup>
       <FormGroup error={getErrorMessageByFieldName('email')}>
         <Input
@@ -86,18 +112,34 @@ export function LoginForm({ buttonLabel, onSubmit }: ILoginFormProps) {
           disabled={isSubmitting}
         />
       </FormGroup>
-      <FormGroup>
+      <FormGroup error={getErrorMessageByFieldName('password')}>
         <Input
-          placeholder="Telefone"
-          type="tel"
-          value={phone}
-          onChange={handlePhoneChange}
-          maxLength={15}
+          placeholder="Senha"
+          type="password"
+          value={password}
+          onChange={handlePasswordChange}
+          error={!!getErrorMessageByFieldName('password')}
           disabled={isSubmitting}
         />
       </FormGroup>
+      {!signIn && (
+        <FormGroup>
+          <Input
+            placeholder="Telefone"
+            type="tel"
+            value={phone}
+            onChange={handlePhoneChange}
+            maxLength={15}
+            disabled={isSubmitting}
+          />
+        </FormGroup>
+      )}
       <ButtonContainer>
-        <Button type="submit" disabled={!isFormValid} isLoading={isSubmitting}>
+        <Button
+          type="submit"
+          disabled={!isSignInFormValid}
+          isLoading={isSubmitting}
+        >
           {buttonLabel}
         </Button>
       </ButtonContainer>
