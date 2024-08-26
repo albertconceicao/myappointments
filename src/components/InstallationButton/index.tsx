@@ -4,24 +4,23 @@ import { useEffect, useState } from 'react';
 export function InstallationButton() {
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
-  console.log(deferredPrompt);
 
   useEffect(() => {
     const handler = (e: Event) => {
-      e.preventDefault();
+      e.preventDefault(); // Evita que o navegador exiba automaticamente o prompt de instalação
       setDeferredPrompt(e);
-      setIsInstallable(true);
+      setIsInstallable(true); // Habilita o botão de instalação
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-    console.log('here');
+
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
   async function handleInstallClick() {
     if (!deferredPrompt) return;
 
-    (deferredPrompt as any).prompt();
+    (deferredPrompt as any).prompt(); // Exibe o prompt de instalação
     const { outcome } = await (deferredPrompt as any).userChoice;
 
     if (outcome === 'accepted') {
@@ -31,13 +30,19 @@ export function InstallationButton() {
     }
 
     setDeferredPrompt(null);
-    setIsInstallable(false);
+    setIsInstallable(false); // Desativa o botão após o uso
   }
   return (
-    isInstallable && (
-      <button type="button" onClick={handleInstallClick}>
-        Instalar Aplicativo
-      </button>
-    )
+    <div>
+      {isInstallable && (
+        <button
+          type="button"
+          onClick={handleInstallClick}
+          style={{ display: 'block', margin: '20px auto' }}
+        >
+          Instalar Aplicativo
+        </button>
+      )}
+    </div>
   );
 }
