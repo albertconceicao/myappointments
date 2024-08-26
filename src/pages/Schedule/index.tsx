@@ -1,3 +1,5 @@
+import { ScheduleList } from '../../components/ScheduleList';
+
 export function Schedule() {
-  return <h1>Schedule</h1>;
+  return <ScheduleList />;
 }

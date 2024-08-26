@@ -8,7 +8,7 @@ export function Header() {
   const shouldShowHeaderProfile = location.pathname !== '/login';
   return (
     <Container profile={shouldShowHeaderProfile}>
-      <Link to="/">
+      <Link to="/schedule">
         <Logo>E-Clínica</Logo>
       </Link>
       {shouldShowHeaderProfile && <Profile />}

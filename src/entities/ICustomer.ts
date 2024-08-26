@@ -9,3 +9,10 @@ export interface ICustomerLoginProps {
   email: string;
   password: string;
 }
+
+export interface ICustomerAppointmentsProps {
+  id: string;
+  dateAndHour: Date;
+  customer: ICustomerProps;
+  notes: string;
+}
