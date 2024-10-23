@@ -9,6 +9,7 @@ interface IButtonProps {
   type: 'button' | 'reset' | 'submit';
   disabled?: boolean;
   children: ReactNode;
+  danger?: boolean;
   onClick?: () => void;
 }
 
@@ -17,6 +18,7 @@ export default function Button({
   type,
   disabled,
   children,
+  danger,
   onClick,
 }: IButtonProps) {
   return (
@@ -24,6 +26,7 @@ export default function Button({
       type={type}
       disabled={disabled || isLoading}
       onClick={onClick}
+      danger={danger}
     >
       {!isLoading && children}
 
@@ -36,4 +39,5 @@ Button.defaultProps = {
   isLoading: false,
   disabled: false,
   onClick: () => {},
+  danger: false,
 };
