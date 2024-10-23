@@ -32,6 +32,21 @@ class HttpClient {
     });
   }
 
+  put(path: string, options: IRequestOptions) {
+    return this.makeRequest(path, {
+      method: 'PUT',
+      body: options?.body,
+      headers: options?.headers,
+    });
+  }
+
+  delete(path: string, options?: IRequestOptions) {
+    return this.makeRequest(path, {
+      method: 'DELETE',
+      headers: options?.headers,
+    });
+  }
+
   async makeRequest(path: string, options: IRequestOptions) {
     await delay(500);
 
@@ -60,7 +75,7 @@ class HttpClient {
     }
 
     if (response.ok) {
-      toast.success('Conta criada com sucesso');
+      // toast.success('Conta criada com sucesso');
       return responseBody;
     }
 

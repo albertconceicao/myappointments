@@ -5,16 +5,23 @@ import { BottomLinks, Container, TopLinks } from './styles';
 
 export function SideBar() {
   const location = useLocation();
-  const shouldShowSidebar = location.pathname !== '/login';
+  const shouldShowSidebar =
+    location.pathname !== '/login' &&
+    location.pathname !== '/finalizar-cadastro';
   return (
     shouldShowSidebar && (
       <Container>
         <TopLinks>
           <LinkItem path="/" name="Dashboard" icon="dashboard" />
-          <LinkItem path="/schedule" name="Agenda" icon="calendar" />
+          <LinkItem path="/agenda" name="Agenda" icon="calendar" />
           <LinkItem path="/login" name="Login" icon="login" />
-          <LinkItem path="/register" name="Registro" icon="register" />
-          <LinkItem path="/customers" name="Pacientes" icon="customers" />
+          <LinkItem
+            path="/registro"
+            name="Adicionar paciente"
+            icon="register"
+          />
+          <LinkItem path="/pacientes" name="Pacientes" icon="customers" />
+          <LinkItem path="/financeiro" name="Financeiro" icon="finance" />
         </TopLinks>
 
         <BottomLinks>

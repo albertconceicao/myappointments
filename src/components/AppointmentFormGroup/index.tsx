@@ -24,7 +24,7 @@ export function CustomerForm({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [password] = useState('');
+  const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { errors, setError, removeError, getErrorMessageByFieldName } =
@@ -56,21 +56,21 @@ export function CustomerForm({
     setPhone(formatPhone(event.target.value));
   }
 
-  // function handlePasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
-  //   setPassword(event.target.value);
-  //   // const regex =
-  //   //   // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&,#])[A-Za-z\d@$!%*?&,#]{8,}$/;
+  function handlePasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setPassword(event.target.value);
+    // const regex =
+    //   // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&,#])[A-Za-z\d@$!%*?&,#]{8,}$/;
 
-  //   if (!password) {
-  //     setError({
-  //       field: 'password',
-  //       message:
-  //         'A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
-  //     });
-  //   } else {
-  //     removeError('password');
-  //   }
-  // }
+    if (!password) {
+      setError({
+        field: 'password',
+        message:
+          'A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
+      });
+    } else {
+      removeError('password');
+    }
+  }
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -112,7 +112,16 @@ export function CustomerForm({
           disabled={isSubmitting}
         />
       </FormGroup>
-
+      <FormGroup error={getErrorMessageByFieldName('password')}>
+        <Input
+          placeholder="Senha"
+          type="password"
+          value={password}
+          onChange={handlePasswordChange}
+          error={!!getErrorMessageByFieldName('password')}
+          disabled={isSubmitting}
+        />
+      </FormGroup>
       {!signIn && (
         <FormGroup>
           <Input

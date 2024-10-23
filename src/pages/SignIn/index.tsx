@@ -1,13 +1,13 @@
 import { toast } from 'react-toastify';
 
-import { CustomerForm } from '../../components/CustomerForm';
-import { ICustomerProps } from '../../entities/ICustomer';
+import { DoctorForm } from '../../components/DoctorForm';
+import { IDoctorProps } from '../../entities/IDoctor';
 import CustomersService from '../../services/CustomersService';
 
 import { Container } from './styles';
 
 export function SignIn() {
-  async function handleSubmit(formData: ICustomerProps) {
+  async function handleSubmit(formData: IDoctorProps) {
     try {
       // eslint-disable-next-line no-inner-declarations
       function redirectToHome() {
@@ -55,8 +55,8 @@ export function SignIn() {
   }
   return (
     <Container>
-      <h1>Entrar na conta</h1>
-      <CustomerForm
+      <h1>Entrar no sistema</h1>
+      <DoctorForm
         onSubmit={handleSubmit}
         buttonLabel="Entrar na conta"
         signIn

@@ -1,3 +1,5 @@
+import Button from '../Button';
+
 import { ScheduleItem } from './ScheduleItem';
 import { Container, ScheduleTitle } from './styles';
 
@@ -52,9 +54,16 @@ export function ScheduleList() {
       notes: 'Revisar tempos verbais',
     },
   ];
+
+  function handleRefreshList() {
+    console.log('Lista atualizada');
+  }
   return (
     <Container>
       <ScheduleTitle>Agenda</ScheduleTitle>
+      <Button type="button" onClick={handleRefreshList}>
+        Atualizar
+      </Button>
       {appointmentsMock.map((appointment) => (
         <ScheduleItem
           key={appointment.id}
@@ -62,6 +71,7 @@ export function ScheduleList() {
           customer={appointment.customer}
           dateAndHour={appointment.dateAndHour}
           notes={appointment.notes}
+          description={appointment.description}
         />
       ))}
     </Container>

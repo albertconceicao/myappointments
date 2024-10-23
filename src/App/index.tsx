@@ -6,6 +6,7 @@ import { ThemeProvider } from 'styled-components';
 import GlobalStyles from '../assets/styles/global';
 import defaultTheme from '../assets/styles/themes/default';
 import { Header } from '../components/Header';
+import { SideBar } from '../components/SideBar';
 import { AppRoutes } from '../routes';
 
 import { NavigationContainer } from './styles';
@@ -29,7 +30,7 @@ export function App() {
       <BrowserRouter>
         <Header />
         <NavigationContainer>
-          {/* <SideBar /> */}
+          <SideBar />
           <AppRoutes />
         </NavigationContainer>
       </BrowserRouter>

@@ -9,6 +9,7 @@ interface IButtonProps {
   type: 'button' | 'reset' | 'submit';
   disabled?: boolean;
   children: ReactNode;
+  onClick?: () => void;
 }
 
 export default function Button({
@@ -16,9 +17,14 @@ export default function Button({
   type,
   disabled,
   children,
+  onClick,
 }: IButtonProps) {
   return (
-    <StyledButton type={type} disabled={disabled || isLoading}>
+    <StyledButton
+      type={type}
+      disabled={disabled || isLoading}
+      onClick={onClick}
+    >
       {!isLoading && children}
 
       {isLoading && <Spinner />}
@@ -27,6 +33,7 @@ export default function Button({
 }
 
 Button.defaultProps = {
-  disabled: false,
   isLoading: false,
+  disabled: false,
+  onClick: () => {},
 };

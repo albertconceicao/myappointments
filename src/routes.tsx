@@ -1,6 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 
 import { Customers } from './pages/Customers';
+import { Finances } from './pages/Finances';
+import { FinishRegistration } from './pages/FinishRegistration';
 import { Home } from './pages/Home';
 import { Schedule } from './pages/Schedule';
 import { SignIn } from './pages/SignIn';
@@ -10,10 +12,12 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/schedule" element={<Schedule />} />
+      <Route path="/agenda" element={<Schedule />} />
       <Route path="/login" element={<SignIn />} />
-      <Route path="/register" element={<SignUp />} />
-      <Route path="/customers" element={<Customers />} />
+      <Route path="/registro" element={<SignUp />} />
+      <Route path="/pacientes" element={<Customers />} />
+      <Route path="/finalizar-cadastro/:id" element={<FinishRegistration />} />
+      <Route path="/financeiro" element={<Finances />} />
     </Routes>
   );
 }
