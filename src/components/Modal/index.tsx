@@ -48,7 +48,7 @@ export function Modal({
               {cancelLabel}
             </button>
             <Button
-              danger
+              danger={danger}
               type="button"
               onClick={onConfirm}
               isLoading={isLoading}
