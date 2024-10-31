@@ -1,7 +1,8 @@
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
+import CustomersService from '../../services/CustomersService';
 import { Modal } from '../Modal';
 
 interface IAppointment {
@@ -86,6 +87,22 @@ export function ScheduleList() {
     description: '',
     notes: '',
   });
+  const [customers, setCustomers] = useState([]);
+  const token = localStorage.getItem('token') || null;
+  const bearerToken: string = `Bearer ${token != null ? token : ''}`;
+
+  const fetchCustomers = useCallback(async () => {
+    if (token) {
+      const customersList = await CustomersService.listCustomers('asc', {
+        Authorization: bearerToken,
+      });
+      setCustomers(customersList);
+    }
+    setIsLoading(false);
+  }, []);
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers, token, bearerToken]);
 
   function handleDeleteAppointment(appointment: IAppointment) {
     setAppointmentBeingDeleted(appointment);
@@ -187,7 +204,11 @@ export function ScheduleList() {
 
   // Função para adicionar um novo agendamento
   function handleAddNewAppointment() {
-    setAppointments((prev) => [...prev, { ...newAppointment, id: Date.now() }]);
+    const { id, ...customer } = newAppointment.customer; // Desestruturação para obter apenas o id
+    setAppointments((prev) => [
+      ...prev,
+      { ...newAppointment, id: Date.now(), customer },
+    ]);
     setNewAppointment({
       id: Date.now(),
       customer: { name: '', email: '', phone: '', password: '' },
@@ -214,6 +235,32 @@ export function ScheduleList() {
         danger={false}
       >
         <div>
+          <select
+            onChange={(e) => {
+              const selectedCustomer = customers.find(
+                (customer) => customer.id === e.target.value,
+              );
+              setNewAppointment((prev) => ({
+                ...prev,
+                customer: selectedCustomer || {
+                  name: '',
+                  email: '',
+                  phone: '',
+                  password: '',
+                },
+              }));
+            }}
+            defaultValue=""
+          >
+            <option value="" disabled>
+              Selecione um paciente
+            </option>
+            {customers.map((customer) => (
+              <option key={customer.id} value={customer.id}>
+                {customer.name}
+              </option>
+            ))}
+          </select>
           <input
             type="text"
             placeholder="Nome do Paciente"
