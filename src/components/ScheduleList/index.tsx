@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -14,7 +14,7 @@ interface IAppointment {
     email: string;
     phone: string;
   };
-  dateAndHour: Date;
+  date: Date;
   description: string;
   notes: string;
 }
@@ -34,13 +34,23 @@ export function ScheduleList() {
   const [newAppointment, setNewAppointment] = useState<IAppointment>({
     _id: Date.now(),
     customerId: { _id: '', name: '', email: '', phone: '' },
-    dateAndHour: new Date(),
+    date: new Date(),
     description: '',
     notes: '',
   });
   const [customers, setCustomers] = useState([]);
   const token = localStorage.getItem('token') || null;
   const bearerToken: string = `Bearer ${token != null ? token : ''}`;
+
+  function convertToValidDate(dateString: string): Date | null {
+    const [datePart, timePart] = dateString.split(' - ');
+    const [day, month, year] = datePart.split('/').map(Number);
+    const [hours, minutes] = timePart.split(':').map(Number);
+
+    const date = new Date(year, month - 1, day, hours, minutes);
+
+    return isValid(date) ? date : null;
+  }
 
   const fetchCustomers = useCallback(async () => {
     if (token) {
@@ -62,10 +72,7 @@ export function ScheduleList() {
         setAppointments(
           appointmentsList.map((appointment: IAppointment) => ({
             ...appointment,
-            dateAndHour: format(
-              new Date(appointment.date),
-              'dd/MM/yyyy - HH:mm',
-            ),
+            date: format(new Date(appointment.date), 'dd/MM/yyyy - HH:mm'), // Exibe no formato desejado
           })),
         );
       } catch (error) {
@@ -90,6 +97,99 @@ export function ScheduleList() {
     setIsDeleteModalVisible(false);
     setAppointmentBeingDeleted(null);
   }
+
+  function handleEditAppointment(appointment: IAppointment) {
+    console.log({ appointment });
+    const updatedAppointment = {
+      ...appointment,
+      date: convertToValidDate(appointment.date),
+    };
+    console.log({ updatedAppointment });
+    setAppointmentBeingEdited(updatedAppointment);
+    setIsEditModalVisible(true);
+  }
+
+  function handleOpenNewAppointmentModal() {
+    setIsNewModalVisible(true);
+  }
+
+  function handleCloseNewAppointmentModal() {
+    setIsNewModalVisible(false);
+  }
+
+  async function handleAddNewAppointment() {
+    try {
+      setIsLoadingDelete(true);
+      const newSavedAppointment = await AppointmentsService.createAppointment({
+        customerId: newAppointment.customerId._id,
+        date: newAppointment.date.toISOString(),
+        description: newAppointment.description,
+        notes: newAppointment.notes,
+      });
+      setAppointments((prev) => [
+        ...prev,
+        {
+          ...newSavedAppointment,
+          date: format(
+            new Date(newSavedAppointment.date),
+            'dd/MM/yyyy - HH:mm',
+          ),
+          customerId: {
+            ...newAppointment.customerId, // Usa os dados existentes do cliente
+          },
+        },
+      ]);
+      console.log({ newAppointment });
+      toast.success('Novo agendamento adicionado!');
+    } catch {
+      toast.warn('Ocorreu um erro ao deletar o agendamento');
+    } finally {
+      setIsNewModalVisible(false);
+      handleCloseNewAppointmentModal();
+      setIsLoadingDelete(false);
+    }
+  }
+  async function handleSaveEditAppointment() {
+    if (appointmentBeingEdited) {
+      try {
+        setIsLoadingDelete(true);
+        const { _id, date, description, notes } = appointmentBeingEdited;
+        const appointmentBeingUploaded =
+          await AppointmentsService.updateAppointment(_id, {
+            date,
+            description,
+            notes,
+          });
+
+        console.log({ appointmentBeingUploaded });
+        setAppointments((prev) =>
+          prev.map(
+            (appointment) =>
+              appointment._id === appointmentBeingUploaded._id
+                ? {
+                    ...appointment, // Mantém as outras propriedades do agendamento (como customerId)
+                    date: format(
+                      new Date(appointmentBeingUploaded.date),
+                      'dd/MM/yyyy - HH:mm',
+                    ), // Atualiza apenas a data e hora
+                    description: appointmentBeingUploaded.description, // Atualiza descrição
+                    notes: appointmentBeingUploaded.notes, // Atualiza notas
+                  }
+                : appointment, // Para os outros agendamentos, mantém inalterado
+          ),
+        );
+
+        console.log({ appointmentBeingEdited });
+        toast.success('Consulta editada com sucesso!');
+      } catch {
+        toast.warn('Ocorreu um erro ao atualizar o agendamento');
+      } finally {
+        setIsNewModalVisible(false);
+        setIsLoadingDelete(false);
+      }
+      setIsEditModalVisible(false);
+    }
+  }
   async function handleConfirmDeleteAppointment() {
     try {
       setIsLoadingDelete(true);
@@ -109,109 +209,7 @@ export function ScheduleList() {
       setIsLoadingDelete(false);
     }
   }
-  // function handleRefreshList() {
-  //   console.log('Lista atualizada');
-  // }
-  // function handleCancel(id: number) {
-  //   setAppointments((prev) =>
-  //     prev.filter((appointment) => appointment.id !== id),
-  //   );
-  //   alert('Consulta cancelada e notificação enviada ao paciente.');
-  // }
-  function handleReschedule(id: number) {
-    // Primeiro, solicitamos a data no formato brasileiro
-    const newDate = prompt('Insira a nova data (DD/MM/YYYY):');
-    if (newDate) {
-      const [day, month, year] = newDate.split('/').map(Number);
 
-      // Depois, solicitamos a hora separadamente
-      const newTime = prompt('Insira o novo horário (HH:mm):');
-      if (newTime) {
-        const [hours, minutes] = newTime.split(':').map(Number);
-
-        // Criando o objeto Date no formato correto
-        const formattedDate = new Date(year, month - 1, day, hours, minutes);
-
-        setAppointments((prev) =>
-          prev.map((appointment) =>
-            appointment._id === id
-              ? { ...appointment, dateAndHour: formattedDate }
-              : appointment,
-          ),
-        );
-        alert('Consulta remarcada com sucesso!');
-      } else {
-        alert('Horário inválido.');
-      }
-    } else {
-      alert('Data inválida.');
-    }
-  }
-
-  // Função para abrir o modal de edição
-  function handleEditAppointment(appointment: IAppointment) {
-    setAppointmentBeingEdited(appointment);
-    setIsEditModalVisible(true);
-  }
-
-  // Função para salvar as edições
-  function handleSaveEditAppointment() {
-    if (appointmentBeingEdited) {
-      setAppointments((prev) =>
-        prev.map((appointment) =>
-          appointment._id === appointmentBeingEdited.id
-            ? {
-                ...appointment, // Mantém as informações atuais
-                ...appointmentBeingEdited, // Sobrescreve com as alterações feitas
-              }
-            : appointment,
-        ),
-      );
-      toast.success('Consulta editada com sucesso!');
-      setIsEditModalVisible(false);
-    }
-  }
-
-  function handleOpenNewAppointmentModal() {
-    setIsNewModalVisible(true);
-  }
-
-  function handleCloseNewAppointmentModal() {
-    setIsNewModalVisible(false);
-  }
-
-  async function handleAddNewAppointment() {
-    try {
-      setIsLoadingDelete(true);
-      const newSavedAppointment = await AppointmentsService.createAppointment({
-        customerId: newAppointment.customerId._id,
-        date: new Date(newAppointment.dateAndHour),
-        description: newAppointment.description,
-        notes: newAppointment.notes,
-      });
-      setAppointments((prev) => [
-        ...prev,
-        {
-          ...newSavedAppointment,
-          customerId: {
-            ...newAppointment.customerId, // Usa os dados existentes do cliente
-          },
-        },
-      ]);
-      console.log({ newAppointment });
-      toast.success('Novo agendamento adicionado!');
-    } catch {
-      toast.warn('Ocorreu um erro ao deletar o agendamento');
-    } finally {
-      setIsNewModalVisible(false);
-      handleCloseNewAppointmentModal();
-      setIsLoadingDelete(false);
-    }
-  }
-
-  function syncWithCalendar(id: number) {
-    alert('Sincronização em andamento');
-  }
   return (
     <div>
       <Modal
@@ -284,27 +282,27 @@ export function ScheduleList() {
           />
           <input
             type="date"
-            value={format(newAppointment.dateAndHour, 'yyyy-MM-dd')}
+            value={format(newAppointment.date, 'yyyy-MM-dd')}
             onChange={(e) => {
               const [year, month, day] = e.target.value.split('-').map(Number);
-              const newDate = new Date(newAppointment.dateAndHour);
+              const newDate = new Date(newAppointment.date);
               newDate.setFullYear(year, month - 1, day);
               setNewAppointment((prev) => ({
                 ...prev,
-                dateAndHour: newDate,
+                date: newDate,
               }));
             }}
           />
           <input
             type="time"
-            value={format(newAppointment.dateAndHour, 'HH:mm')}
+            value={format(newAppointment.date, 'HH:mm')}
             onChange={(e) => {
               const [hours, minutes] = e.target.value.split(':').map(Number);
-              const newDate = new Date(newAppointment.dateAndHour);
+              const newDate = new Date(newAppointment.date);
               newDate.setHours(hours, minutes);
               setNewAppointment((prev) => ({
                 ...prev,
-                dateAndHour: newDate,
+                date: newDate,
               }));
             }}
           />
@@ -354,7 +352,7 @@ export function ScheduleList() {
                 newDate.setFullYear(year, month - 1, day); // Atualizando a data
                 setAppointmentBeingEdited({
                   ...appointmentBeingEdited,
-                  dateAndHour: newDate,
+                  date: newDate,
                 });
               }}
             />
@@ -369,7 +367,7 @@ export function ScheduleList() {
                 newDate.setHours(hours, minutes); // Atualizando a hora
                 setAppointmentBeingEdited({
                   ...appointmentBeingEdited,
-                  dateAndHour: newDate,
+                  date: newDate,
                 });
               }}
             />
@@ -442,9 +440,10 @@ export function ScheduleList() {
               <td>{appointment?.customerId?.email || 'Carregando...'}</td>
               <td>{appointment?.customerId?.phone || 'Carregando...'}</td>
               <td>
-                {appointment.date
+                {/* {appointment.date
                   ? format(appointment.date, 'dd/MM/yyyy - HH:mm')
-                  : 'Carregando...'}
+                  : 'Carregando...'} */}
+                {appointment.date}
               </td>
               <td>{appointment.description || 'Carregando...'}</td>
               <td>{appointment.notes || 'Carregando...'}</td>
