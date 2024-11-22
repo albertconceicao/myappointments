@@ -5,6 +5,7 @@ import { Finances } from './pages/Finances';
 import { FinishRegistration } from './pages/FinishRegistration';
 import { Home } from './pages/Home';
 import { Schedule } from './pages/Schedule';
+import { SendEmailToClients } from './pages/SendEmailToClients';
 import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
 
@@ -18,6 +19,7 @@ export function AppRoutes() {
       <Route path="/pacientes" element={<Customers />} />
       <Route path="/finalizar-cadastro/:id" element={<FinishRegistration />} />
       <Route path="/financeiro" element={<Finances />} />
+      <Route path="/notificar-clientes" element={<SendEmailToClients />} />
     </Routes>
   );
 }

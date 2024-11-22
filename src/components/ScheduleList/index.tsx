@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
+import AppointmentsService from '../../services/AppointmentsService';
 import CustomersService from '../../services/CustomersService';
 import { Modal } from '../Modal';
 
@@ -11,65 +12,14 @@ interface IAppointment {
     name: string;
     email: string;
     phone: string;
-    password: string;
   };
   dateAndHour: Date;
   description: string;
   notes: string;
 }
 
-const appointmentsMock: IAppointment[] = [
-  {
-    id: 1,
-    customer: {
-      name: 'Maria Silva',
-      email: 'maria.silva@email.com',
-      phone: '+5511999999999',
-      password: 'maria1234',
-    },
-    dateAndHour: new Date('2024-09-01T10:00:00'),
-    description: 'Consulta médica de rotina',
-    notes: 'Trazer exames anteriores',
-  },
-  {
-    id: 2,
-    customer: {
-      name: 'João Souza',
-      email: 'joao.souza@email.com',
-      phone: '+5511888888888',
-      password: 'joao5678',
-    },
-    dateAndHour: new Date('2024-09-02T14:30:00'),
-    description: 'Avaliação odontológica',
-    notes: 'Verificar sensibilidade nos dentes',
-  },
-  {
-    id: 3,
-    customer: {
-      name: 'Ana Pereira',
-      email: 'ana.pereira@email.com',
-      phone: '+5511777777777',
-      password: 'ana91011',
-    },
-    dateAndHour: new Date('2024-09-03T16:00:00'),
-    description: 'Reunião com o cliente para discutir o projeto',
-    notes: 'Levar propostas atualizadas',
-  },
-  {
-    id: 4,
-    customer: {
-      name: 'Carlos Mendes',
-      email: 'carlos.mendes@email.com',
-      phone: '+5511666666666',
-      password: 'carlos1213',
-    },
-    dateAndHour: new Date('2024-09-04T11:00:00'),
-    description: 'Aula particular de inglês',
-    notes: 'Revisar tempos verbais',
-  },
-];
 export function ScheduleList() {
-  const [appointments, setAppointments] = useState(appointmentsMock);
+  const [appointments, setAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [appointmentBeingDeleted, setAppointmentBeingDeleted] =
@@ -82,7 +32,7 @@ export function ScheduleList() {
   const [isNewModalVisible, setIsNewModalVisible] = useState(false); // Novo estado para modal de novo agendamento
   const [newAppointment, setNewAppointment] = useState<IAppointment>({
     id: Date.now(),
-    customer: { name: '', email: '', phone: '', password: '' },
+    customer: { name: '', email: '', phone: '' },
     dateAndHour: new Date(),
     description: '',
     notes: '',
@@ -100,9 +50,32 @@ export function ScheduleList() {
     }
     setIsLoading(false);
   }, []);
+
+  const fetchAppointments = useCallback(async () => {
+    if (token) {
+      try {
+        const appointmentsList = await AppointmentsService.listAppointments({
+          Authorization: bearerToken,
+        });
+        console.log({ appointmentsList });
+        setAppointments(
+          appointmentsList.map((appointment: IAppointment) => ({
+            ...appointment,
+            dateAndHour: new Date(appointment.dateAndHour), // Garantindo o formato Date
+          })),
+        );
+      } catch (error) {
+        toast.error('Erro ao buscar agendamentos!');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  }, [token, bearerToken]);
+
   useEffect(() => {
     fetchCustomers();
-  }, [fetchCustomers, token, bearerToken]);
+    fetchAppointments();
+  }, [fetchCustomers, fetchAppointments]);
 
   function handleDeleteAppointment(appointment: IAppointment) {
     setAppointmentBeingDeleted(appointment);
@@ -116,18 +89,19 @@ export function ScheduleList() {
   async function handleConfirmDeleteAppointment() {
     try {
       setIsLoadingDelete(true);
-      // await ContactsService.deleteContact(contactBeingDeleted.id);
+      await AppointmentsService.deleteAppointment(appointmentBeingDeleted._id);
 
       console.log({ appointmentBeingDeleted });
-      setAppointments((prev) =>
-        prev.filter(
-          (appointment) => appointment.id !== appointmentBeingDeleted?.id,
-        ),
-      );
+      setAppointments((prev) => {
+        const updatedAppointments = prev.filter(
+          (appointment) => appointment._id !== appointmentBeingDeleted?._id,
+        );
+        return updatedAppointments;
+      });
       handleCloseDeleteModal();
-      toast.success('Contato deletado com sucesso!');
+      toast.success('Agendamento deletado com sucesso!');
     } catch {
-      toast.warn('Ocorreu um erro ao deletar contato');
+      toast.warn('Ocorreu um erro ao deletar o agendamento');
     } finally {
       setIsLoadingDelete(false);
     }
@@ -182,8 +156,11 @@ export function ScheduleList() {
     if (appointmentBeingEdited) {
       setAppointments((prev) =>
         prev.map((appointment) =>
-          appointment.id === appointmentBeingEdited.id
-            ? appointmentBeingEdited
+          appointment._id === appointmentBeingEdited.id
+            ? {
+                ...appointment, // Mantém as informações atuais
+                ...appointmentBeingEdited, // Sobrescreve com as alterações feitas
+              }
             : appointment,
         ),
       );
@@ -192,12 +169,10 @@ export function ScheduleList() {
     }
   }
 
-  // Função para abrir o modal de novo agendamento
   function handleOpenNewAppointmentModal() {
     setIsNewModalVisible(true);
   }
 
-  // Função para fechar o modal de novo agendamento
   function handleCloseNewAppointmentModal() {
     setIsNewModalVisible(false);
   }
@@ -211,7 +186,7 @@ export function ScheduleList() {
     ]);
     setNewAppointment({
       id: Date.now(),
-      customer: { name: '', email: '', phone: '', password: '' },
+      customer: { name: '', email: '', phone: '' },
       dateAndHour: new Date(),
       description: '',
       notes: '',
@@ -228,25 +203,29 @@ export function ScheduleList() {
       <Modal
         title="Adicionar Novo Agendamento"
         visible={isNewModalVisible}
-        onCancel={handleCloseNewAppointmentModal}
-        onConfirm={handleAddNewAppointment}
+        onCancel={() => setIsNewModalVisible(false)}
+        onConfirm={() => {
+          // Adicionar lógica para salvar o novo agendamento na API
+          setAppointments((prev) => [...prev, newAppointment]);
+          toast.success('Novo agendamento adicionado!');
+          setIsNewModalVisible(false);
+        }}
         confirmLabel="Adicionar"
-        cancelLabel="Fechar"
-        danger={false}
+        cancelLabel="Cancelar"
       >
         <div>
           <select
             onChange={(e) => {
               const selectedCustomer = customers.find(
-                (customer) => customer.id === e.target.value,
+                (customer) => customer.name === e.target.value,
               );
+              console.log(selectedCustomer);
               setNewAppointment((prev) => ({
                 ...prev,
                 customer: selectedCustomer || {
                   name: '',
                   email: '',
                   phone: '',
-                  password: '',
                 },
               }));
             }}
@@ -357,12 +336,12 @@ export function ScheduleList() {
             {/* Campo para editar a data */}
             <input
               type="date"
-              value={format(appointmentBeingEdited.dateAndHour, 'yyyy-MM-dd')} // Formato de data compatível
+              value={format(appointmentBeingEdited.date, 'yyyy-MM-dd')} // Formato de data compatível
               onChange={(e) => {
                 const [year, month, day] = e.target.value
                   .split('-')
                   .map(Number);
-                const newDate = new Date(appointmentBeingEdited.dateAndHour);
+                const newDate = new Date(appointmentBeingEdited.date);
                 newDate.setFullYear(year, month - 1, day); // Atualizando a data
                 setAppointmentBeingEdited({
                   ...appointmentBeingEdited,
@@ -374,10 +353,10 @@ export function ScheduleList() {
             {/* Campo para editar a hora */}
             <input
               type="time"
-              value={format(appointmentBeingEdited.dateAndHour, 'HH:mm')} // Formato de hora compatível
+              value={format(appointmentBeingEdited.date, 'HH:mm')} // Formato de hora compatível
               onChange={(e) => {
                 const [hours, minutes] = e.target.value.split(':').map(Number);
-                const newDate = new Date(appointmentBeingEdited.dateAndHour);
+                const newDate = new Date(appointmentBeingEdited.date);
                 newDate.setHours(hours, minutes); // Atualizando a hora
                 setAppointmentBeingEdited({
                   ...appointmentBeingEdited,
@@ -419,7 +398,7 @@ export function ScheduleList() {
       </button>
 
       <Modal
-        title={`Tem certeza que deseja remover o agendamento de "${appointmentBeingDeleted?.customer.name}"`}
+        title={`Tem certeza que deseja remover o agendamento de "${appointmentBeingDeleted?.customerId.name}"`}
         visible={isDeleteModalVisible}
         danger
         confirmLabel="Confirmar cancelamento"
@@ -445,11 +424,11 @@ export function ScheduleList() {
         </thead>
         <tbody>
           {appointments.map((appointment) => (
-            <tr key={appointment.id}>
-              <td>{appointment.customer.name}</td>
-              <td>{appointment.customer.email}</td>
-              <td>{appointment.customer.phone}</td>
-              <td>{format(appointment.dateAndHour, 'dd/MM/yyyy - HH:mm')}</td>
+            <tr key={`${appointment._id}-${appointment.date}`}>
+              <td>{appointment?.customerId.name}</td>
+              <td>{appointment?.customerId.email}</td>
+              <td>{appointment?.customerId.phone}</td>
+              <td>{format(appointment.date, 'dd/MM/yyyy - HH:mm')}</td>
               <td>{appointment.description}</td>
               <td>{appointment.notes}</td>
               <td>
