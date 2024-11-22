@@ -1,4 +1,7 @@
-import { ICustomerProps } from '../entities/ICustomer';
+import {
+  ICustomerAppointmentsProps,
+  ICustomerProps,
+} from '../entities/ICustomer';
 
 import HttpClient from './utils/httpClient';
 
@@ -29,7 +32,7 @@ class AppointmentsService {
     return this.HttpClient.get(`/appointments/${id}`);
   }
 
-  async createAppointment(customer: ICustomerProps) {
+  async createAppointment(customer: ICustomerAppointmentsProps) {
     return this.HttpClient.post('/appointments', { body: customer });
   }
 

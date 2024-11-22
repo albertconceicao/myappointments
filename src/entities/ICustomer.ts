@@ -1,4 +1,5 @@
 export interface ICustomerProps {
+  _id: string;
   name: string;
   email: string;
   phone: string;
@@ -15,9 +16,8 @@ export interface ICustomerLoginProps {
 }
 
 export interface ICustomerAppointmentsProps {
-  id: string;
-  dateAndHour: Date;
-  customer: ICustomerProps;
+  customerId: string;
+  date: Date;
   notes: string;
   description: string;
 }

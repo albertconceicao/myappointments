@@ -7,8 +7,9 @@ import CustomersService from '../../services/CustomersService';
 import { Modal } from '../Modal';
 
 interface IAppointment {
-  id: number;
-  customer: {
+  _id: number;
+  customerId: {
+    _id: string;
     name: string;
     email: string;
     phone: string;
@@ -19,7 +20,7 @@ interface IAppointment {
 }
 
 export function ScheduleList() {
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState<IAppointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [appointmentBeingDeleted, setAppointmentBeingDeleted] =
@@ -31,8 +32,8 @@ export function ScheduleList() {
 
   const [isNewModalVisible, setIsNewModalVisible] = useState(false); // Novo estado para modal de novo agendamento
   const [newAppointment, setNewAppointment] = useState<IAppointment>({
-    id: Date.now(),
-    customer: { name: '', email: '', phone: '' },
+    _id: Date.now(),
+    customerId: { _id: '', name: '', email: '', phone: '' },
     dateAndHour: new Date(),
     description: '',
     notes: '',
@@ -61,7 +62,10 @@ export function ScheduleList() {
         setAppointments(
           appointmentsList.map((appointment: IAppointment) => ({
             ...appointment,
-            dateAndHour: new Date(appointment.dateAndHour), // Garantindo o formato Date
+            dateAndHour: format(
+              new Date(appointment.date),
+              'dd/MM/yyyy - HH:mm',
+            ),
           })),
         );
       } catch (error) {
@@ -91,7 +95,6 @@ export function ScheduleList() {
       setIsLoadingDelete(true);
       await AppointmentsService.deleteAppointment(appointmentBeingDeleted._id);
 
-      console.log({ appointmentBeingDeleted });
       setAppointments((prev) => {
         const updatedAppointments = prev.filter(
           (appointment) => appointment._id !== appointmentBeingDeleted?._id,
@@ -131,7 +134,7 @@ export function ScheduleList() {
 
         setAppointments((prev) =>
           prev.map((appointment) =>
-            appointment.id === id
+            appointment._id === id
               ? { ...appointment, dateAndHour: formattedDate }
               : appointment,
           ),
@@ -177,22 +180,33 @@ export function ScheduleList() {
     setIsNewModalVisible(false);
   }
 
-  // Função para adicionar um novo agendamento
-  function handleAddNewAppointment() {
-    const { id, ...customer } = newAppointment.customer; // Desestruturação para obter apenas o id
-    setAppointments((prev) => [
-      ...prev,
-      { ...newAppointment, id: Date.now(), customer },
-    ]);
-    setNewAppointment({
-      id: Date.now(),
-      customer: { name: '', email: '', phone: '' },
-      dateAndHour: new Date(),
-      description: '',
-      notes: '',
-    });
-    toast.success('Novo agendamento adicionado!');
-    handleCloseNewAppointmentModal();
+  async function handleAddNewAppointment() {
+    try {
+      setIsLoadingDelete(true);
+      const newSavedAppointment = await AppointmentsService.createAppointment({
+        customerId: newAppointment.customerId._id,
+        date: new Date(newAppointment.dateAndHour),
+        description: newAppointment.description,
+        notes: newAppointment.notes,
+      });
+      setAppointments((prev) => [
+        ...prev,
+        {
+          ...newSavedAppointment,
+          customerId: {
+            ...newAppointment.customerId, // Usa os dados existentes do cliente
+          },
+        },
+      ]);
+      console.log({ newAppointment });
+      toast.success('Novo agendamento adicionado!');
+    } catch {
+      toast.warn('Ocorreu um erro ao deletar o agendamento');
+    } finally {
+      setIsNewModalVisible(false);
+      handleCloseNewAppointmentModal();
+      setIsLoadingDelete(false);
+    }
   }
 
   function syncWithCalendar(id: number) {
@@ -204,12 +218,7 @@ export function ScheduleList() {
         title="Adicionar Novo Agendamento"
         visible={isNewModalVisible}
         onCancel={() => setIsNewModalVisible(false)}
-        onConfirm={() => {
-          // Adicionar lógica para salvar o novo agendamento na API
-          setAppointments((prev) => [...prev, newAppointment]);
-          toast.success('Novo agendamento adicionado!');
-          setIsNewModalVisible(false);
-        }}
+        onConfirm={handleAddNewAppointment}
         confirmLabel="Adicionar"
         cancelLabel="Cancelar"
       >
@@ -222,7 +231,7 @@ export function ScheduleList() {
               console.log(selectedCustomer);
               setNewAppointment((prev) => ({
                 ...prev,
-                customer: selectedCustomer || {
+                customerId: selectedCustomer || {
                   name: '',
                   email: '',
                   phone: '',
@@ -243,33 +252,33 @@ export function ScheduleList() {
           <input
             type="text"
             placeholder="Nome do Paciente"
-            value={newAppointment.customer.name}
+            value={newAppointment.customerId.name}
             onChange={(e) =>
               setNewAppointment((prev) => ({
                 ...prev,
-                customer: { ...prev.customer, name: e.target.value },
+                customer: { ...prev.customerId, name: e.target.value },
               }))
             }
           />
           <input
             type="email"
             placeholder="Email"
-            value={newAppointment.customer.email}
+            value={newAppointment.customerId.email}
             onChange={(e) =>
               setNewAppointment((prev) => ({
                 ...prev,
-                customer: { ...prev.customer, email: e.target.value },
+                customer: { ...prev.customerId, email: e.target.value },
               }))
             }
           />
           <input
             type="tel"
             placeholder="Telefone"
-            value={newAppointment.customer.phone}
+            value={newAppointment.customerId.phone}
             onChange={(e) =>
               setNewAppointment((prev) => ({
                 ...prev,
-                customer: { ...prev.customer, phone: e.target.value },
+                customer: { ...prev.customerId, phone: e.target.value },
               }))
             }
           />
@@ -424,30 +433,28 @@ export function ScheduleList() {
         </thead>
         <tbody>
           {appointments.map((appointment) => (
-            <tr key={`${appointment._id}-${appointment.date}`}>
-              <td>{appointment?.customerId.name}</td>
-              <td>{appointment?.customerId.email}</td>
-              <td>{appointment?.customerId.phone}</td>
-              <td>{format(appointment.date, 'dd/MM/yyyy - HH:mm')}</td>
-              <td>{appointment.description}</td>
-              <td>{appointment.notes}</td>
+            // const appointmentDate = appointment.date
+            //   ? new Date(appointment.date)
+            //   : null;
+
+            <tr key={`${appointment._id}-${appointment.date || 'pending'}`}>
+              <td>{appointment?.customerId?.name || 'Carregando...'}</td>
+              <td>{appointment?.customerId?.email || 'Carregando...'}</td>
+              <td>{appointment?.customerId?.phone || 'Carregando...'}</td>
+              <td>
+                {appointment.date
+                  ? format(appointment.date, 'dd/MM/yyyy - HH:mm')
+                  : 'Carregando...'}
+              </td>
+              <td>{appointment.description || 'Carregando...'}</td>
+              <td>{appointment.notes || 'Carregando...'}</td>
               <td>
                 <button
                   type="button"
                   onClick={() => handleDeleteAppointment(appointment)}
                 >
-                  {/* <button
-                  type="button"
-                  onClick={() => handleCancel(appointment.id)}
-                > */}
                   Cancelar
                 </button>
-                {/* <button
-                  type="button"
-                  onClick={() => handleReschedule(appointment.id)}
-                >
-                  Remarcar
-                </button> */}
                 <button
                   type="button"
                   onClick={() => handleEditAppointment(appointment)}
