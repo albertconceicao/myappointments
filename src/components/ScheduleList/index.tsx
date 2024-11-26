@@ -4,7 +4,13 @@ import { toast } from 'react-toastify';
 
 import AppointmentsService from '../../services/AppointmentsService';
 import CustomersService from '../../services/CustomersService';
+import Button from '../Button';
+import Input from '../Input';
 import { Modal } from '../Modal';
+import { ModalForm } from '../Modal/styles';
+import Select from '../Select';
+
+import { TableContainer } from './styles';
 
 interface IAppointment {
   _id: number;
@@ -219,9 +225,10 @@ export function ScheduleList() {
         onConfirm={handleAddNewAppointment}
         confirmLabel="Adicionar"
         cancelLabel="Cancelar"
+        isLoading={isLoadingDelete}
       >
-        <div>
-          <select
+        <ModalForm>
+          <Select
             onChange={(e) => {
               const selectedCustomer = customers.find(
                 (customer) => customer.name === e.target.value,
@@ -246,8 +253,8 @@ export function ScheduleList() {
                 {customer.name}
               </option>
             ))}
-          </select>
-          <input
+          </Select>
+          <Input
             type="text"
             placeholder="Nome do Paciente"
             value={newAppointment.customerId.name}
@@ -258,7 +265,7 @@ export function ScheduleList() {
               }))
             }
           />
-          <input
+          <Input
             type="email"
             placeholder="Email"
             value={newAppointment.customerId.email}
@@ -269,7 +276,7 @@ export function ScheduleList() {
               }))
             }
           />
-          <input
+          <Input
             type="tel"
             placeholder="Telefone"
             value={newAppointment.customerId.phone}
@@ -280,7 +287,7 @@ export function ScheduleList() {
               }))
             }
           />
-          <input
+          <Input
             type="date"
             value={format(newAppointment.date, 'yyyy-MM-dd')}
             onChange={(e) => {
@@ -293,7 +300,7 @@ export function ScheduleList() {
               }));
             }}
           />
-          <input
+          <Input
             type="time"
             value={format(newAppointment.date, 'HH:mm')}
             onChange={(e) => {
@@ -306,7 +313,7 @@ export function ScheduleList() {
               }));
             }}
           />
-          <input
+          <Input
             type="text"
             placeholder="Descrição"
             value={newAppointment.description}
@@ -327,7 +334,7 @@ export function ScheduleList() {
               }))
             }
           />
-        </div>
+        </ModalForm>
       </Modal>
       <Modal
         title="Editar Agendamento"
@@ -337,11 +344,12 @@ export function ScheduleList() {
         confirmLabel="Salvar"
         cancelLabel="Fechar"
         danger={false}
+        isLoading={isLoadingDelete}
       >
         {appointmentBeingEdited && (
-          <div>
+          <ModalForm>
             {/* Campo para editar a data */}
-            <input
+            <Input
               type="date"
               value={format(appointmentBeingEdited.date, 'yyyy-MM-dd')} // Formato de data compatível
               onChange={(e) => {
@@ -358,7 +366,7 @@ export function ScheduleList() {
             />
 
             {/* Campo para editar a hora */}
-            <input
+            <Input
               type="time"
               value={format(appointmentBeingEdited.date, 'HH:mm')} // Formato de hora compatível
               onChange={(e) => {
@@ -373,7 +381,7 @@ export function ScheduleList() {
             />
 
             {/* Campo para editar a descrição */}
-            <input
+            <Input
               type="text"
               placeholder="Descrição"
               value={appointmentBeingEdited.description}
@@ -396,13 +404,9 @@ export function ScheduleList() {
                 })
               }
             />
-          </div>
+          </ModalForm>
         )}
       </Modal>
-
-      <button type="button" onClick={handleOpenNewAppointmentModal}>
-        Adicionar Novo Agendamento
-      </button>
 
       <Modal
         title={`Tem certeza que deseja remover o agendamento de "${appointmentBeingDeleted?.customerId.name}"`}
@@ -417,7 +421,10 @@ export function ScheduleList() {
         <p> Esta ação não poderá ser desfeita</p>
       </Modal>
       <h2>Gerenciamento de Consultas</h2>
-      <table>
+      <Button type="button" onClick={handleOpenNewAppointmentModal}>
+        Adicionar Novo Agendamento
+      </Button>
+      <TableContainer>
         <thead>
           <tr>
             <th>Paciente</th>
@@ -431,46 +438,38 @@ export function ScheduleList() {
         </thead>
         <tbody>
           {appointments.map((appointment) => (
-            // const appointmentDate = appointment.date
-            //   ? new Date(appointment.date)
-            //   : null;
-
             <tr key={`${appointment._id}-${appointment.date || 'pending'}`}>
               <td>{appointment?.customerId?.name || 'Carregando...'}</td>
               <td>{appointment?.customerId?.email || 'Carregando...'}</td>
               <td>{appointment?.customerId?.phone || 'Carregando...'}</td>
-              <td>
-                {/* {appointment.date
-                  ? format(appointment.date, 'dd/MM/yyyy - HH:mm')
-                  : 'Carregando...'} */}
-                {appointment.date}
-              </td>
+              <td>{appointment.date}</td>
               <td>{appointment.description || 'Carregando...'}</td>
               <td>{appointment.notes || 'Carregando...'}</td>
-              <td>
-                <button
+              <td className="button-group">
+                <Button
                   type="button"
+                  danger
                   onClick={() => handleDeleteAppointment(appointment)}
                 >
                   Cancelar
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => handleEditAppointment(appointment)}
                 >
                   Editar
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => syncWithCalendar(appointment.id)}
                 >
                   Sincronizar Calendário
-                </button>
+                </Button>
               </td>
             </tr>
           ))}
         </tbody>
-      </table>
+      </TableContainer>
     </div>
   );
 }

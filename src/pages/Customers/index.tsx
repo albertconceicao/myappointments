@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import Button from '../../components/Button';
 import { ICustomerProps } from '../../entities/ICustomer';
 import CustomersService from '../../services/CustomersService';
 
@@ -55,25 +56,34 @@ export function Customers() {
               <th>Remover</th>
             </tr>
           </thead>
-          {customers.map((customer: ICustomerProps) => (
-            <tr key={customer._id}>
-              <td>{customer.name}</td>
-              <td>{customer.phone}</td>
-              <td>
-                <Link to={`/finalizar-cadastro/${customer._id}`}>
-                  Editar cliente
-                </Link>
-              </td>
-              <td>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteCustomer(customer._id)}
-                >
-                  Remover cliente
-                </button>
-              </td>
+          <tbody>
+            {customers.map((customer: ICustomerProps) => (
+              <tr key={customer._id}>
+                <td>{customer.name}</td>
+                <td>{customer.phone}</td>
+                <td>
+                  <Link to={`/finalizar-cadastro/${customer._id}`}>
+                    Editar cliente
+                  </Link>
+                </td>
+                <td>
+                  <Button
+                    type="button"
+                    danger
+                    onClick={() => handleDeleteCustomer(customer._id)}
+                  >
+                    Remover cliente
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={3}>Total</td>
+              <td>{customers.length}</td>
             </tr>
-          ))}
+          </tfoot>
         </TableContainer>
       )}
     </div>
