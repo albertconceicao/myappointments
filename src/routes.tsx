@@ -1,9 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
 
 import { Customers } from './pages/Customers';
-import { Finances } from './pages/Finances';
 import { FinishRegistration } from './pages/FinishRegistration';
 import { Home } from './pages/Home';
+import { Reports } from './pages/Reports';
 import { Schedule } from './pages/Schedule';
 import { SendEmailToClients } from './pages/SendEmailToClients';
 import { SignIn } from './pages/SignIn';
@@ -18,7 +18,7 @@ export function AppRoutes() {
       <Route path="/registro" element={<SignUp />} />
       <Route path="/pacientes" element={<Customers />} />
       <Route path="/finalizar-cadastro/:id" element={<FinishRegistration />} />
-      <Route path="/financeiro" element={<Finances />} />
+      <Route path="/financeiro" element={<Reports />} />
       <Route path="/notificar-clientes" element={<SendEmailToClients />} />
     </Routes>
   );
