@@ -13,6 +13,7 @@ import {
   ReportDateAndCity,
   ReportDescription,
   ReportHighlight,
+  ReportSignSection,
   SectionInfo,
   SectionTitle,
 } from './styles';
@@ -176,7 +177,12 @@ export default function GenerateReceipt() {
           <ReportDateAndCity>
             Camaçari, BA, {new Date().toLocaleDateString('BR')}
           </ReportDateAndCity>
-          <p>Assinado por Sandy Carvalho - CRP 03/27277</p>
+          <ReportSignSection>
+            <p>_____________________________</p>
+            <p>Sandy Nunes Carvalho Conceição</p>
+            <p>Psicóloga</p>
+            <p>CRP 03/27277</p>
+          </ReportSignSection>
         </ReceiptBody>
         <ReceiptFooter>
           <p>

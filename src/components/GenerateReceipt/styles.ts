@@ -100,3 +100,11 @@ export const ReceiptFooter = styled.footer`
   padding: 1.5rem;
   border-top: 2px solid ${({ theme }) => theme.colors.primary.main};
 `;
+
+export const ReportSignSection = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 3rem 0 1rem 0;
+`;
