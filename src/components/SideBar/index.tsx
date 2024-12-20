@@ -24,7 +24,7 @@ export function SideBar() {
     shouldShowSidebar && (
       <>
         <MobileContainer>
-          <Menu bubble>
+          <Menu>
             <Container>
               <TopLinks>
                 <LinkItem path="/" name="Dashboard" icon="dashboard" />
