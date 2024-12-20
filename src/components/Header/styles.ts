@@ -35,4 +35,8 @@ export const Logo = styled.h2`
   font-size: 32px;
   font-weight: 700;
   line-height: 42px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;

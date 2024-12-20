@@ -14,12 +14,11 @@ export function AppRoutes() {
   const isAuthenticated = !!localStorage.getItem('token');
   return (
     <Routes>
-      {/* Rotas públicas */}
       <Route path="/login" element={<SignIn />} />
       <Route path="/cadastrar" element={<SignUp />} />
       <Route path="/registro" element={<CreateCustomer />} />
       <Route path="/blog" element={<div>Blog</div>} />
-      {/* Rotas privadas */}
+
       <Route element={<PrivateRoutes isAuthenticated={isAuthenticated} />}>
         <Route path="/" element={<Home />} />
         <Route path="/agenda" element={<Schedule />} />

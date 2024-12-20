@@ -9,7 +9,7 @@ export function Header() {
     location.pathname !== '/login' && location.pathname !== '/cadastrar';
   return (
     <Container profile={shouldShowHeaderProfile}>
-      <Link to="/schedule">
+      <Link to="/agenda">
         <Logo>E-Clínica</Logo>
       </Link>
       {shouldShowHeaderProfile && <Profile />}

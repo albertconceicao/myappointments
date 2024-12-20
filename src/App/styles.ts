@@ -8,4 +8,7 @@ export const NavigationContainer = styled.div`
     flex: 1;
     padding: 20px;
   }
+  @media (max-width: 768px) {
+    gap: 0;
+  }
 `;
