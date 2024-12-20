@@ -9,7 +9,7 @@ import DoctorsService from '../../services/DoctorsService';
 import { Container } from './styles';
 
 export function SignIn() {
-  const { token, setToken, setDoctorId } = useAuth();
+  const { token, setToken, setDoctorId, setDoctorName } = useAuth();
 
   async function handleSubmit(formData: { email: string; password: string }) {
     try {
@@ -25,7 +25,8 @@ export function SignIn() {
         const decodedToken: { doctorId: string } = jwtDecode(jwtToken);
 
         setToken(jwtToken);
-        setDoctorId(decodedToken.doctorId);
+        setDoctorId(decodedToken.doctor._id);
+        setDoctorName(decodedToken.doctor.name);
 
         currentToken = jwtToken;
       }

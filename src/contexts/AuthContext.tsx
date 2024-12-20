@@ -11,10 +11,12 @@ export function AuthProvider({
 }): JSX.Element {
   const [token, setTokenState] = useState<string | null>(null);
   const [doctorId, setDoctorIdState] = useState<string | null>(null);
+  const [doctorName, setDoctorNameState] = useState<string | null>(null);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedDoctorId = localStorage.getItem('doctorId');
+    const storedDoctorName = localStorage.getItem('doctorName');
 
     if (storedToken) {
       setTokenState(storedToken);
@@ -22,6 +24,10 @@ export function AuthProvider({
 
     if (storedDoctorId) {
       setDoctorIdState(storedDoctorId);
+    }
+
+    if (storedDoctorName) {
+      setDoctorNameState(storedDoctorName);
     }
   }, []);
 
@@ -35,23 +41,32 @@ export function AuthProvider({
     setDoctorIdState(newDoctorId);
   };
 
+  const setDoctorName = (newDoctorName: string) => {
+    localStorage.setItem('doctorName', newDoctorName);
+    setDoctorNameState(newDoctorName);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('doctorId');
+    localStorage.removeItem('doctorName');
     window.location.href = '/login';
     setTokenState(null);
     setDoctorIdState(null);
+    setDoctorNameState(null);
   };
 
   const value = React.useMemo(
     () => ({
       token,
       doctorId,
+      doctorName,
       setToken,
       setDoctorId,
+      setDoctorName,
       logout,
     }),
-    [token, doctorId],
+    [token, doctorId, doctorName],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
