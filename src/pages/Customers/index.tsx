@@ -9,7 +9,7 @@ import CustomersService from '../../services/CustomersService';
 import { TableContainer } from './styles';
 
 export function Customers() {
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] = useState<ICustomerProps[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const token = localStorage.getItem('token') || null;
   const bearerToken: string = `Bearer ${token != null ? token : ''}`;
@@ -41,11 +41,13 @@ export function Customers() {
     <div>
       {isLoading ? (
         <h1>Carregando pacientes...</h1>
-      ) : !customers.length ? (
+      ) : !customers?.length ? (
         <h1>Você ainda não tem clientes cadastrados</h1>
       ) : (
         <h1>Pacientes</h1>
       )}
+
+      <Link to="/registro">Adicionar Novo Paciente</Link>
       {token && !isLoading && (
         <TableContainer>
           <thead>
@@ -57,7 +59,7 @@ export function Customers() {
             </tr>
           </thead>
           <tbody>
-            {customers.map((customer: ICustomerProps) => (
+            {customers?.map((customer: ICustomerProps) => (
               <tr key={customer._id}>
                 <td>{customer.name}</td>
                 <td>{customer.phone}</td>
@@ -70,7 +72,9 @@ export function Customers() {
                   <Button
                     type="button"
                     danger
-                    onClick={() => handleDeleteCustomer(customer._id)}
+                    onClick={() =>
+                      customer._id && handleDeleteCustomer(customer._id)
+                    }
                   >
                     Remover cliente
                   </Button>
@@ -81,7 +85,7 @@ export function Customers() {
           <tfoot>
             <tr>
               <td colSpan={3}>Total</td>
-              <td>{customers.length}</td>
+              <td>{customers?.length}</td>
             </tr>
           </tfoot>
         </TableContainer>

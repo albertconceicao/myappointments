@@ -27,18 +27,18 @@ class PaymentsService {
     return this.HttpClient.get(`/Paymentss/${id}`);
   }
 
-  async createPayments(customer: ICustomerPaymentssProps) {
-    return this.HttpClient.post('/Paymentss', { body: customer });
+  async createPayments(customer: ICustomerPaymentsProps) {
+    return this.HttpClient.post('/payments', { body: customer });
   }
 
-  async updatePayments(PaymentsId: string, customer: ICustomerPaymentssProps) {
-    return this.HttpClient.put(`/Paymentss/${PaymentsId}`, {
+  async updatePayments(PaymentsId: string, customer: ICustomerPaymentsProps) {
+    return this.HttpClient.put(`/payments/${PaymentsId}`, {
       body: customer,
     });
   }
 
   async deletePayments(id: string) {
-    return this.HttpClient.delete(`/Paymentss/${id}`);
+    return this.HttpClient.delete(`/payments/${id}`);
   }
 }
 

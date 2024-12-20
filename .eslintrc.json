@@ -28,6 +28,8 @@
     "react/jsx-filename-extension": [1, { "extensions": [".tsx"] }],
     "react/react-in-jsx-scope": "off",
     "react/jsx-props-no-spreading": "off",
+    "react/require-default-props": "off",
+    "no-underscore-dangle": "off",
     "no-empty": ["error", { "allowEmptyCatch": true }],
     "react/jsx-no-bind": "off",
     "import/prefer-default-export": "off",

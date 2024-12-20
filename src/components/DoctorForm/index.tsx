@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { IDoctorProps } from '../../entities/IDoctor';
 import { useErrors } from '../../hooks/useErrors';
@@ -142,6 +143,7 @@ export function DoctorForm({
         >
           {buttonLabel}
         </Button>
+        {signIn && <Link to="/cadastrar">Criar nova conta</Link>}
       </ButtonContainer>
     </Form>
   );

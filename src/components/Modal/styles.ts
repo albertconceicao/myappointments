@@ -32,22 +32,6 @@ export const Container = styled.div<{ danger: boolean }>`
   }
 `;
 
-export const ModalForm = styled.form`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-
-  textarea {
-    grid-column: 1 / 3;
-    width: 100%;
-    height: 120px;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid ${({ theme }) => theme.colors.gray[100]};
-    resize: vertical;
-  }
-`;
-
 export const Footer = styled.div`
   margin-top: 32px;
   display: flex;

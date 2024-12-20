@@ -29,8 +29,14 @@ class AppointmentsService {
     return this.HttpClient.get(`/appointments/${id}`);
   }
 
-  async createAppointment(customer: ICustomerAppointmentsProps) {
-    return this.HttpClient.post('/appointments', { body: customer });
+  async createAppointment(
+    customer: ICustomerAppointmentsProps,
+    headers: Record<string, string>,
+  ) {
+    return this.HttpClient.post('/appointments', {
+      headers,
+      body: customer,
+    });
   }
 
   async updateAppointment(

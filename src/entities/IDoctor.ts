@@ -4,3 +4,8 @@ export interface IDoctorProps {
   phone: string;
   password: string;
 }
+
+export interface IDoctorLoginProps {
+  email: string;
+  password: string;
+}

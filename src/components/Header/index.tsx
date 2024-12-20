@@ -5,7 +5,8 @@ import { Container, Logo } from './styles';
 
 export function Header() {
   const location = useLocation();
-  const shouldShowHeaderProfile = location.pathname !== '/login';
+  const shouldShowHeaderProfile =
+    location.pathname !== '/login' && location.pathname !== '/cadastrar';
   return (
     <Container profile={shouldShowHeaderProfile}>
       <Link to="/schedule">

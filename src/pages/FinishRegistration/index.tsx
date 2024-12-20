@@ -18,6 +18,9 @@ export function FinishRegistration() {
   useEffect(() => {
     async function loadCustomer() {
       try {
+        if (!id) {
+          throw new Error('Customer ID is undefined');
+        }
         const customer = await CustomersService.getCustomerById(id);
         console.log({ customer });
 
@@ -37,13 +40,15 @@ export function FinishRegistration() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        password: formData.password,
       };
-      const response = await CustomersService.updateCustomer(id, customer);
-
-      console.log(response);
+      if (id) {
+        await CustomersService.updateCustomer(id, customer);
+        toast.success('Cadastro atualizado com sucesso');
+      } else {
+        throw new Error('Customer ID not found');
+      }
     } catch (error) {
-      console.log(error);
+      toast.error('Ocorreu um erro ao atualizar cadastro');
     } finally {
       console.log('Request finished');
     }

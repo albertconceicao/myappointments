@@ -1,34 +1,39 @@
-import { CustomerForm } from '../../components/CustomerForm';
-import { ICustomerProps } from '../../entities/ICustomer';
-import CustomersService from '../../services/CustomersService';
+import { toast } from 'react-toastify';
+
+import { DoctorForm } from '../../components/DoctorForm';
+import { IDoctorProps } from '../../entities/IDoctor';
+import DoctorsService from '../../services/DoctorsService';
 
 import { Container } from './styles';
 
 export function SignUp() {
-  async function handleSubmit(formData: ICustomerProps) {
+  async function handleSubmit(formData: IDoctorProps) {
     try {
-      const customer = {
+      const doctor = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        password: '',
+        password: formData.password,
       };
-      console.log(formData.phone);
-      const response = await CustomersService.createCustomer(customer);
 
-      console.log(response);
+      const response = await DoctorsService.createDoctor(doctor);
+
+      toast.success('Cadastro realizado com sucesso!');
+      setTimeout(() => {
+        window.location.href = '/pacientes';
+      }, 2000);
     } catch (error) {
-      console.log(error);
+      toast.error('Ocorreu um erro ao realizar o seu cadastro');
     } finally {
       console.log('Request finished');
     }
   }
   return (
     <Container>
-      <h1>Cadastrar novo paciente</h1>
-      <CustomerForm
+      <h1>Criar conta</h1>
+      <DoctorForm
         onSubmit={handleSubmit}
-        buttonLabel="Cadastrar paciente"
+        buttonLabel="Cadastro"
         signIn={false}
       />
     </Container>
